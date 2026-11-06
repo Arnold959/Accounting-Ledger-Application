@@ -244,5 +244,116 @@ public class Main {
     }
     //Method 6: REPORTS MENU
     //Allow users to select different reports
-    public static void reports() {}
+    public static void reports() {
+        String choice = "";
+        //Show reports until the user selects O
+        while(!choice.equalsIgnoreCase("O")) {
+            System.out.println("\n===Reports====");
+            System.out.println("1) Month To Date");
+            System.out.println("2) Previous Month");
+            System.out.println("3) Year To Date");
+            System.out.println("4) Previous Year");
+            System.out.println("5) Search by Vendor");
+            System.out.println("O) Back");
+            System.out.print("Enter your choice: ");
+
+            choice = scanner.nextLine();
+            //Choice 1 to 4 generate date reports
+            if(choice.equals("1") || choice.equals("2") || choice.equals("3") || choice.equals("4")) {
+                dateReport(choice);
+            }else if(choice.equals("5")) {
+                //Search for transactions by vendor
+                searchVendor();
+            }else if(!choice.equals("O")) {
+                System.out.println("Invalid choice");
+            }
+        }
+    }
+    //Method 7: Date Report
+    //Filters transactions based on their dates
+    public static void dateReport(String choice) {
+        //Read saved transactions
+        String[]transactions = readTransactions();
+        //Get today's date
+        LocalDate today = LocalDate.now();
+        boolean found  = false;
+        System.out.println("===REPORT RESULTS====");
+        //Go through every transaction
+        for(String transaction : transactions) {
+            if(transaction == null){
+                break;
+            }
+            //Split the transaction into separate parts
+            String[]parts=transaction.split("\\|");
+            if(parts.length !=5){
+                continue;
+            }
+            try{
+                //Convert the saved date into a LocalDate
+                LocalDate date = LocalDate.parse(parts[0]);
+                //Check whether the date matches the report
+                boolean match = false;
+                if(choice.equals("1")){
+                    //Month to Date:
+                    //Transactions from this month up to today
+                    match = YearMonth.from(date).equals(YearMonth.from(today))
+                            && ! date.isAfter(today);
+                }else if(choice.equals("2")){
+                    //Previous Month:
+                    //Transactions from last month
+                    match = YearMonth.from(date).equals(YearMonth.from(today.minusMonths(1)));
+                }else if(choice.equals("3")){
+                    //Year to Date:
+                    //Transactions from this year up to today
+                    match = date.getYear() == today.getYear() && ! date.isAfter(today);
+                }else if(choice.equals("4")){
+                    //Previous Year;
+                    //Transactions from last year
+                    match = date.getYear() == today.getYear() - 1;
+                }
+                //Print the transaction if its date matches
+                if (match){
+                    System.out.println(transaction);
+                    found = true;
+                }
+            } catch (Exception e){
+                //Skip records with invalid dates
+            }
+        }
+        //Show a message when no records match
+        if(!found){
+            System.out.println("No transactions found.");
+        }
+    }
+    //Method 8: SEARCH BY VENDOR
+    //Find transactions using the vendor name
+    public static void searchVendor() {
+        //Ask the user which vendor to search for
+        System.out.print("Enter vendor: ");
+        String vendor = scanner.nextLine();
+        //Read all saved transactions
+        String[]transactions = readTransactions();
+        boolean found  = false;
+        System.out.println("\n===VENDOR RESULTS====");
+        //loop through the transactions
+        for(String transaction : transactions) {
+            if(transaction == null){
+                break;
+            }
+            //Separate the transaction information
+            String[] parts = transaction.split("\\|");
+            //parts[3] contains the vendor name
+            //toLowerCase allows case-insensitive searching
+            //contains allows partial name matches
+            if(parts.length ==5 && parts[3].toLowerCase().contains(vendor.toLowerCase())){
+                //Display matching transaction
+                System.out.println(transaction);
+                found = true;
+            }
+        }
+        //Display a message if the vendor is not found
+        if(!found){
+            System.out.println("No transactions found.");
+        }
+    }
 }
