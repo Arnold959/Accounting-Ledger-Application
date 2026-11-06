@@ -104,7 +104,7 @@ public class Main {
         String time = LocalTime.now().withNano(0).toString();
         //Combine the information into one transaction
         //Each value separated by |
-        String transaction = date +"|"+time+"|"+description+"|"+vendor
+        String transaction = date +"|"+time+"|"+description+"|"+vendor + "|"
                 + String.format(java.util.Locale.US, "%.2f", amount);
         //Save the transaction to the CSV file
         try{
